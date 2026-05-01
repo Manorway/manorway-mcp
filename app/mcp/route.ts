@@ -26,29 +26,6 @@ import {
 const DISCLAIMER =
   'NOT LEGAL ADVICE. The Manorway MCP server provides general HOA / condo guidance for Washington State communities and should not be relied on as legal advice. For decisions affecting a specific community, consult a Washington-licensed attorney.';
 
-// CORS headers needed because Claude.ai (browser-based) does a preflight
-// OPTIONS request before POST. Public tier is fully open — any origin allowed.
-const CORS_HEADERS: Record<string, string> = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers':
-    'Content-Type, Accept, Authorization, Mcp-Session-Id, MCP-Protocol-Version, Last-Event-ID',
-  'Access-Control-Expose-Headers': 'Mcp-Session-Id, MCP-Protocol-Version',
-  'Access-Control-Max-Age': '86400',
-};
-
-function withCors(response: Response): Response {
-  const headers = new Headers(response.headers);
-  for (const [k, v] of Object.entries(CORS_HEADERS)) {
-    headers.set(k, v);
-  }
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
-}
-
 // Module-level singleton: the McpServer + transport are created once on cold
 // start and reused across warm invocations. In stateless mode the transport
 // has no per-session state, so this is safe across concurrent requests.
@@ -281,8 +258,7 @@ export const runtime = 'nodejs';
 
 async function handle(req: Request): Promise<Response> {
   const transport = await ready;
-  const response = await transport.handleRequest(req);
-  return withCors(response);
+  return transport.handleRequest(req);
 }
 
 export async function POST(req: Request): Promise<Response> {
@@ -295,11 +271,4 @@ export async function GET(req: Request): Promise<Response> {
 
 export async function DELETE(req: Request): Promise<Response> {
   return handle(req);
-}
-
-export async function OPTIONS(): Promise<Response> {
-  return new Response(null, {
-    status: 204,
-    headers: CORS_HEADERS,
-  });
 }
