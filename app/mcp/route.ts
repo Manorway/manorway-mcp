@@ -26,6 +26,17 @@ import {
 const DISCLAIMER =
   'NOT LEGAL ADVICE. The Manorway MCP server provides general HOA / condo guidance for Washington State communities and should not be relied on as legal advice. For decisions affecting a specific community, consult a Washington-licensed attorney.';
 
+// CORS headers attached to every response from this route. The middleware
+// handles the OPTIONS preflight separately; we attach these to the actual
+// JSON-RPC POST/GET/DELETE responses.
+const CORS_HEADERS: Record<string, string> = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers':
+    'Content-Type, Accept, Authorization, Mcp-Session-Id, MCP-Protocol-Version, Last-Event-ID',
+  'Access-Control-Expose-Headers': 'Mcp-Session-Id, MCP-Protocol-Version',
+};
+
 // Module-level singleton: the McpServer + transport are created once on cold
 // start and reused across warm invocations. In stateless mode the transport
 // has no per-session state, so this is safe across concurrent requests.
@@ -257,8 +268,42 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 async function handle(req: Request): Promise<Response> {
-  const transport = await ready;
-  return transport.handleRequest(req);
+  try {
+    const transport = await ready;
+    const sdkResponse = await transport.handleRequest(req);
+    // Build a fresh Response with CORS headers merged in. We pass through the
+    // original body, status, and content headers to avoid clobbering anything
+    // the SDK set (Content-Type, Mcp-Session-Id, etc.).
+    const headers = new Headers(sdkResponse.headers);
+    for (const [k, v] of Object.entries(CORS_HEADERS)) {
+      headers.set(k, v);
+    }
+    return new Response(sdkResponse.body, {
+      status: sdkResponse.status,
+      statusText: sdkResponse.statusText,
+      headers,
+    });
+  } catch (err) {
+    // Surface the error as a JSON-RPC error response with diagnostics so we can
+    // see what's actually breaking in production logs.
+    const message = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error && err.stack ? err.stack.split('\n').slice(0, 5).join(' | ') : '';
+    return new Response(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: null,
+        error: {
+          code: -32603,
+          message: 'Internal error in Manorway MCP handler',
+          data: { message, stack },
+        },
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+      },
+    );
+  }
 }
 
 export async function POST(req: Request): Promise<Response> {
