@@ -2,7 +2,7 @@
  * Helpers for the OAuth 2.1 + PKCE flow.
  */
 
-const CONSENT_PAGE = 'https://manorwaygroup.com/mcp-authorize';
+const CONSENT_PAGE = 'https://mcp.manorwaygroup.com/oauth/consent';
 
 export const SUPPORTED_SCOPES = ['profile', 'community:read', 'community:write'] as const;
 export type Scope = (typeof SUPPORTED_SCOPES)[number];
