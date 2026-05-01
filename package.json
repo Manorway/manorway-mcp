@@ -1,8 +1,8 @@
 {
   "name": "manorway-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Manorway MCP Server — public-tier HOA tools for ChatGPT, Claude, and other MCP-aware AI clients.",
+  "description": "Manorway MCP Server — public-tier and authenticated-tier HOA tools for ChatGPT, Claude, and other MCP-aware AI clients.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "jose": "^5.10.0",
     "next": "^16.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
