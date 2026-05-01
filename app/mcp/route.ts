@@ -2,9 +2,15 @@
  * Manorway MCP Server — public tier.
  *
  * Uses @modelcontextprotocol/sdk directly with WebStandardStreamableHTTPServerTransport
- * in stateless mode. No Redis or other external state required.
+ * in stateless mode.
  *
  * Endpoint: POST/GET/DELETE https://mcp.manorwaygroup.com/mcp
+ *
+ * NOTE: Stateless transport must be created per-request. The SDK throws
+ * "Stateless transport cannot be reused across requests" if a transport
+ * instance handles more than one request. So registerTools() builds the tool
+ * registration logic once at module load, but each handle() invocation gets a
+ * fresh McpServer + WebStandardStreamableHTTPServerTransport pair.
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -26,9 +32,6 @@ import {
 const DISCLAIMER =
   'NOT LEGAL ADVICE. The Manorway MCP server provides general HOA / condo guidance for Washington State communities and should not be relied on as legal advice. For decisions affecting a specific community, consult a Washington-licensed attorney.';
 
-// CORS headers attached to every response from this route. The middleware
-// handles the OPTIONS preflight separately; we attach these to the actual
-// JSON-RPC POST/GET/DELETE responses.
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
@@ -37,18 +40,14 @@ const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Expose-Headers': 'Mcp-Session-Id, MCP-Protocol-Version',
 };
 
-// Module-level singleton: the McpServer + transport are created once on cold
-// start and reused across warm invocations. In stateless mode the transport
-// has no per-session state, so this is safe across concurrent requests.
-const ready = (async () => {
+/** Build a fresh McpServer with all 5 public tools registered. */
+function buildServer(): McpServer {
   const server = new McpServer({
     name: 'manorway-mcp',
     version: '0.1.0',
   });
 
-  // ---------------------------------------------------------------------------
-  // search_wuciioa
-  // ---------------------------------------------------------------------------
+  // search_wuciioa ------------------------------------------------------------
   server.registerTool(
     'search_wuciioa',
     {
@@ -93,9 +92,7 @@ const ready = (async () => {
     },
   );
 
-  // ---------------------------------------------------------------------------
-  // get_wuciioa_section
-  // ---------------------------------------------------------------------------
+  // get_wuciioa_section -------------------------------------------------------
   server.registerTool(
     'get_wuciioa_section',
     {
@@ -134,9 +131,7 @@ const ready = (async () => {
     },
   );
 
-  // ---------------------------------------------------------------------------
-  // lookup_quorum_requirement
-  // ---------------------------------------------------------------------------
+  // lookup_quorum_requirement -------------------------------------------------
   server.registerTool(
     'lookup_quorum_requirement',
     {
@@ -167,9 +162,7 @@ const ready = (async () => {
     },
   );
 
-  // ---------------------------------------------------------------------------
-  // draft_violation_notice_template
-  // ---------------------------------------------------------------------------
+  // draft_violation_notice_template -------------------------------------------
   server.registerTool(
     'draft_violation_notice_template',
     {
@@ -213,9 +206,7 @@ const ready = (async () => {
     },
   );
 
-  // ---------------------------------------------------------------------------
-  // explain_hoa_concept
-  // ---------------------------------------------------------------------------
+  // explain_hoa_concept -------------------------------------------------------
   server.registerTool(
     'explain_hoa_concept',
     {
@@ -253,27 +244,24 @@ const ready = (async () => {
     },
   );
 
-  // Stateless transport — no session state, no Redis, no DB. Each request
-  // handles itself. enableJsonResponse=true so we return JSON instead of SSE.
-  const transport = new WebStandardStreamableHTTPServerTransport({
-    sessionIdGenerator: undefined,
-    enableJsonResponse: true,
-  });
-
-  await server.connect(transport);
-  return transport;
-})();
+  return server;
+}
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 async function handle(req: Request): Promise<Response> {
   try {
-    const transport = await ready;
+    // Per-request: fresh server + transport (required by SDK in stateless mode)
+    const server = buildServer();
+    const transport = new WebStandardStreamableHTTPServerTransport({
+      sessionIdGenerator: undefined,
+      enableJsonResponse: true,
+    });
+    await server.connect(transport);
+
     const sdkResponse = await transport.handleRequest(req);
-    // Build a fresh Response with CORS headers merged in. We pass through the
-    // original body, status, and content headers to avoid clobbering anything
-    // the SDK set (Content-Type, Mcp-Session-Id, etc.).
+
     const headers = new Headers(sdkResponse.headers);
     for (const [k, v] of Object.entries(CORS_HEADERS)) {
       headers.set(k, v);
@@ -284,10 +272,11 @@ async function handle(req: Request): Promise<Response> {
       headers,
     });
   } catch (err) {
-    // Surface the error as a JSON-RPC error response with diagnostics so we can
-    // see what's actually breaking in production logs.
     const message = err instanceof Error ? err.message : String(err);
-    const stack = err instanceof Error && err.stack ? err.stack.split('\n').slice(0, 5).join(' | ') : '';
+    const stack =
+      err instanceof Error && err.stack
+        ? err.stack.split('\n').slice(0, 5).join(' | ')
+        : '';
     return new Response(
       JSON.stringify({
         jsonrpc: '2.0',
