@@ -2,6 +2,24 @@
  * Curated summaries of key WUCIOA (Washington Uniform Common Interest Ownership Act,
  * RCW 64.90) sections most relevant to HOA and condo boards.
  *
+ * Two-phase rollout context (current as of 2026):
+ *   - WUCIOA took effect July 1, 2018 and applied in full to communities formed
+ *     on or after that date.
+ *   - ESSB 5796 (2024 session, "WUCIOA for All", Chapter 239 Laws of 2024) sets
+ *     a transition deadline of January 1, 2028 by which every Washington common
+ *     interest community must be on full WUCIOA, regardless of formation date.
+ *   - ESSB 5129 (2025 session, Chapter 119 Laws of 2025) accelerated key
+ *     provisions to January 1, 2026 for every community: meeting rules
+ *     (including a mandatory 15 minute owner comment period on agenda items
+ *     before a board vote), resale certificates for every community type, at
+ *     least one fee free assessment payment method, expanded board powers
+ *     during a governor declared emergency, EV charging siting, heat pump
+ *     approvals, and tightened secret ballot rules.
+ *   - Small community exemption (RCW 64.90.080): communities with 50 or fewer
+ *     units AND average annual assessments of $1,000 or less per unit have
+ *     LIMITED WUCIOA application. Threshold raised by ESSB 5129 (2025) from
+ *     the prior 12 unit / $300 cap.
+ *
  * Source: Revised Code of Washington (RCW). Summaries are paraphrased for plain-language
  * understanding and do not substitute the statute text. Section numbers and titles match
  * the official RCW.
@@ -25,15 +43,15 @@ export const WUCIOA_SECTIONS: WuciioaSection[] = [
     section: '64.90.405',
     title: 'Meetings of the board',
     summary:
-      'Governs how an HOA or condo board must conduct its meetings under WUCIOA. Board meetings must be open to unit owners except when the board enters executive session for limited topics (pending or threatened litigation, personnel matters, contract negotiations, member discipline, or matters required by law to be confidential). Boards must give reasonable notice of meetings to unit owners. Decisions made in executive session must still be ratified in the open meeting and recorded in the minutes.',
-    tags: ['board meeting', 'executive session', 'open meeting', 'notice', 'unit owners'],
+      'Governs how an HOA or condo board must conduct its meetings under WUCIOA. Board meetings must be open to unit owners except when the board enters executive session for limited topics (pending or threatened litigation, personnel matters, contract negotiations, member discipline, or matters required by law to be confidential). Boards must give reasonable notice of meetings to unit owners. Decisions made in executive session must still be ratified in the open meeting and recorded in the minutes. ESSB 5129 (2025), effective for every Washington common interest community on January 1, 2026, requires the board to allow at least 15 minutes for unit owners to comment on each agenda item before the board votes, and authorizes meetings without a physical location provided members have a phone or electronic option to participate.',
+    tags: ['board meeting', 'executive session', 'open meeting', 'notice', 'unit owners', '15 minute comment', 'owner comment period', 'virtual meeting', 'SB 5129', 'ESSB 5129'],
   },
   {
     section: '64.90.445',
     title: 'Meetings of the unit owners',
     summary:
-      'Sets notice requirements for meetings of the unit owners (the membership-wide body, distinct from the board). Notice must be given at least 14 days but not more than 60 days before the meeting. Notice must include the date, time, place, items on the agenda, and (for the annual meeting) the names of any board candidates. SB 5129 (2026) modernized this section to authorize electronic notice and explicit virtual / hybrid meeting authority.',
-    tags: ['unit owners meeting', 'annual meeting', 'notice', 'agenda', 'electronic notice', 'virtual meeting', 'SB 5129'],
+      'Sets notice requirements for meetings of the unit owners (the membership wide body, distinct from the board). Notice must be given at least 14 days but not more than 60 days before the meeting. Notice must include the date, time, place, items on the agenda, and (for the annual meeting) the names of any board candidates. ESSB 5129 (2025 session, Chapter 119 Laws of 2025), effective for every common interest community on January 1, 2026, modernized this section to authorize electronic notice, virtual and hybrid meetings, and a shortened 7 day emergency notice option by electronic communication.',
+    tags: ['unit owners meeting', 'annual meeting', 'notice', 'agenda', 'electronic notice', 'virtual meeting', 'hybrid meeting', 'emergency notice', 'SB 5129', 'ESSB 5129'],
   },
   {
     section: '64.90.455',
@@ -60,7 +78,7 @@ export const WUCIOA_SECTIONS: WuciioaSection[] = [
     section: '64.90.525',
     title: 'Budgets — Assessments — Special assessments',
     summary:
-      'Requires the board to adopt an annual budget and disclose it to the unit owners. The budget allocates the year\'s expected expenses among the units according to the declaration. The membership has a limited right to ratify or reject the budget at a special meeting; if the membership does not act, the budget is deemed ratified. Special assessments above a threshold typically require unit owner approval.',
+      'Requires the board to adopt an annual budget and disclose it to the unit owners. The budget allocates the year\'s expected expenses among the units according to the declaration. The membership has a limited right to ratify or reject the budget at a special meeting; if the membership does not act, the budget is deemed ratified. Special assessments above a threshold typically require unit owner approval. ESSB 5129 (2025), effective for every Washington common interest community on January 1, 2026, requires the association to offer at least one method of accepting payment of assessments at no charge to the unit owner (or absorbed as a common expense).',
     tags: ['budget', 'assessment', 'dues', 'special assessment', 'budget ratification'],
   },
   {
@@ -74,8 +92,8 @@ export const WUCIOA_SECTIONS: WuciioaSection[] = [
     section: '64.90.550',
     title: 'Reserve study — Required',
     summary:
-      'Requires the association to have a reserve study prepared by a qualified professional. The study inventories common-element components, estimates remaining useful life and replacement cost, and recommends a funding plan. The board must consider the study\'s recommendations when adopting the annual budget. Reserve study requirements apply to communities formed after July 1, 2018, and to pre-existing communities under the WUCIOA core carve-in.',
-    tags: ['reserve study', 'reserves', 'qualified professional', 'common elements', 'funding plan'],
+      'Requires the association to have a reserve study prepared by a qualified professional. The study inventories common element components, estimates remaining useful life and replacement cost, and recommends a funding plan. The board must consider the study\'s recommendations when adopting the annual budget. Under ESSB 5796 (2024, the WUCIOA for All bill), reserve study requirements apply to every Washington common interest community by January 1, 2028, regardless of formation date. ESSB 5129 (2025), effective July 27, 2025, also tightened reserve fund investment rules: reserves must be held in FDIC insured or FINRA regulated accounts, disbursements over $250,000 require dual signatures, and investing 100 percent of reserves in non insured securities requires a 75 percent owner vote.',
+    tags: ['reserve study', 'reserves', 'qualified professional', 'common elements', 'funding plan', 'reserve fund investment', 'WUCIOA for All', 'ESSB 5796', 'ESSB 5129'],
   },
   {
     section: '64.90.555',
@@ -102,8 +120,8 @@ export const WUCIOA_SECTIONS: WuciioaSection[] = [
     section: '64.90.645',
     title: 'Resale certificate (5B disclosure)',
     summary:
-      'Requires the association to provide a resale certificate (sometimes called a "5B disclosure") to a unit owner who is selling. The certificate must contain specified governing documents, financial information, pending assessments, current insurance, and other disclosures. The buyer is entitled to receive this package before closing. Failure to deliver a complete certificate can give the buyer cancellation rights.',
-    tags: ['resale certificate', '5B disclosure', 'sale', 'buyer disclosure', 'closing'],
+      'Requires the association to provide a resale certificate (sometimes called a "5B disclosure") to a unit owner who is selling. The certificate must contain specified governing documents, financial information, pending assessments, current insurance, and other disclosures. ESSB 5129 (2025), effective for every Washington common interest community type on January 1, 2026, expanded the resale certificate requirement to all common interest communities and added new buyer protections: if the certificate is delivered 5 or fewer days before closing, the buyer may cancel the purchase or extend the closing date. The seller can also request a waiver if the certificate is unavailable under defined conditions.',
+    tags: ['resale certificate', '5B disclosure', 'sale', 'buyer disclosure', 'closing', 'buyer cancellation', '5 day rule', 'ESSB 5129'],
   },
 ];
 
